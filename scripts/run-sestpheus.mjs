@@ -6,6 +6,8 @@ const reaction = 'six_pointed_star';
 if (import.meta.url === pathToFileURL(process.argv[1]).href) await main();
 
 export async function main() {
+  if (process.env.GITHUB_EVENT_NAME === 'push') return;
+
   const token = mustEnv('SLACK_BOT_TOKEN');
   const state = await getState();
   for (const channel of state.channels) {
