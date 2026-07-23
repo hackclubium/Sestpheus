@@ -19,6 +19,7 @@ jobs:
       - run: npm run check
 
   run:
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,7 +30,6 @@ jobs:
           node-version: 22
       - run: node scripts/run-sestpheus.mjs
         env:
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SESTPHEUS_STATE_URL: ${{ secrets.SESTPHEUS_STATE_URL }}
           SESTPHEUS_STATE_TOKEN: ${{ secrets.SESTPHEUS_STATE_TOKEN }}
