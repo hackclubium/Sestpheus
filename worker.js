@@ -61,22 +61,20 @@ async function slackEvent(rawBody, env) {
   if (!analysis.ok) return new Response('ok');
 
   const text = cleanDisplayText(event.text ?? '');
-  await Promise.all([
-    slack(env, 'chat.postMessage', {
-      channel: event.channel,
-      thread_ts: event.ts,
-      text: `${text}\n---\n${CFG.line(analysis)}\n- a ${CFG.form} by <@${event.user}>, ${new Date().getUTCFullYear()}`,
-      blocks: [
-        { type: 'section', text: { type: 'plain_text', text } },
-        { type: 'divider' },
-        { type: 'context', elements: [{ type: 'mrkdwn', text: `${CFG.line(analysis)}\n- a ${CFG.form} by <@${event.user}>, ${new Date().getUTCFullYear()}` }] }
-      ],
-      unfurl_links: false,
-      unfurl_media: false
-    }),
-    slack(env, 'reactions.add', { channel: event.channel, timestamp: event.ts, name: CFG.reaction })
-  ]);
-  await dbPut(env, key, '1', 12 * 60 * 60).catch(() => {});
+  await dbPut(env, key, '1', 12 * 60 * 60);
+  await slack(env, 'chat.postMessage', {
+    channel: event.channel,
+    thread_ts: event.ts,
+    text: `${text}\n---\n${CFG.line(analysis)}\n- a ${CFG.form} by <@${event.user}>, ${new Date().getUTCFullYear()}`,
+    blocks: [
+      { type: 'section', text: { type: 'plain_text', text } },
+      { type: 'divider' },
+      { type: 'context', elements: [{ type: 'mrkdwn', text: `${CFG.line(analysis)}\n- a ${CFG.form} by <@${event.user}>, ${new Date().getUTCFullYear()}` }] }
+    ],
+    unfurl_links: false,
+    unfurl_media: false
+  });
+  await slack(env, 'reactions.add', { channel: event.channel, timestamp: event.ts, name: CFG.reaction }).catch(() => {});
   return new Response('ok');
 }
 
