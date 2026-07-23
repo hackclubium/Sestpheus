@@ -1,0 +1,8 @@
+name = "sestpheus"
+main = "worker.js"
+compatibility_date = "2026-07-20"
+
+[[d1_databases]]
+binding = "SESTPHEUS_DB"
+database_name = "sestpheus-state"
+database_id = "790ce9de-937f-42a1-8f59-7565ad5926f0"
