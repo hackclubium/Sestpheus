@@ -18,11 +18,17 @@ export async function main() {
       if ((message.text ?? '').length > 8000) continue;
       const analysis = analyzeSestina(message.text ?? '');
       if (!analysis.ok || (message.reactions ?? []).some((item) => item.name === reaction)) continue;
+      if (await hasThreadReply(token, channel, message.ts, message.user, 'sestina')) continue;
       const text = cleanDisplayText(message.text ?? '');
       await postForm(token, channel, message.ts, message.user, text, `end words: ${analysis.endWords.join(', ')}`, 'sestina');
-      await slack(token, 'reactions.add', { channel, timestamp: message.ts, name: reaction });
+      await slack(token, 'reactions.add', { channel, timestamp: message.ts, name: reaction }).catch((error) => console.warn(`reaction skipped: ${error.message}`));
     }
   }
+}
+
+async function hasThreadReply(token, channel, ts, user, form) {
+  const replies = await slack(token, 'conversations.replies', { channel, ts, limit: 20 }).catch(() => ({ messages: [] }));
+  return (replies.messages ?? []).some((message) => (message.text ?? '').includes(`- a ${form} by <@${user}>`));
 }
 
 async function getState() {
